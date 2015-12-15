@@ -9,19 +9,4 @@
 
     <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
     </Grid>
-
-    <Page.BottomAppBar>
-        <AppBar
-            IsOpen="{x:Bind IsGalleryEmpty, Mode=OneWay}"
-            ClosedDisplayMode="Compact"
-            IsSticky="True">
-            <StackPanel>
-                <AppBarButton
-                    VerticalAlignment="Center"
-                    HorizontalAlignment="Center"
-                    Icon="Add"
-                    Label="Choose Gallery"/>
-            </StackPanel>
-        </AppBar>
-    </Page.BottomAppBar>
 </Page>

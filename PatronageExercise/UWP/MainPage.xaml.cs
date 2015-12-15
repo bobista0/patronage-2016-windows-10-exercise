@@ -15,12 +15,6 @@ namespace UWP
         #endregion
 
         #region PROPERTIES
-        private bool _isGalleryEmpty = true;
-        public bool IsGalleryEmpty
-        {
-            get { return _isGalleryEmpty; }
-            set { _isGalleryEmpty = value; }
-        }
         #endregion
 
 
