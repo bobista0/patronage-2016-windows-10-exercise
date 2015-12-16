@@ -13,6 +13,8 @@ namespace UWP
         {
             this.InitializeComponent();
             this.Suspending += OnSuspending;
+
+            MainPage.GetFiles();
         }
 
         protected override void OnLaunched(LaunchActivatedEventArgs e)
