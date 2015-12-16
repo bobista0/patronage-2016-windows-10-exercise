@@ -9,9 +9,9 @@
 
     <Grid x:Name="LayoutRoot" Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
         <Image
-            x:Name="DisplayedPhoto"
+            Stretch="UniformToFill"
+            Name="DisplayedPhoto"
             HorizontalAlignment="Center"
-            VerticalAlignment="Center"
-            Stretch="UniformToFill" />
+            VerticalAlignment="Center"/>
     </Grid>
 </Page>
