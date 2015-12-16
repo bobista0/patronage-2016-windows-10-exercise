@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using Windows.Storage;
+using Windows.Storage.Search;
 using Windows.UI;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
@@ -13,7 +14,7 @@ namespace UWP
     public sealed partial class MainPage : Page
     {
         #region PRIVATE FIELDS
-        private IReadOnlyList<StorageFile> _files;
+        private static IReadOnlyList<StorageFile> _files;
         #endregion
 
         #region CONSTRUCTORS
@@ -21,7 +22,6 @@ namespace UWP
         {
             InitializeComponent();
 
-            GetFiles();
             LoadPhoto();
         }
         #endregion
@@ -30,10 +30,10 @@ namespace UWP
         #endregion
 
         #region METHODS
-        private async void GetFiles()
+        public static async void GetFiles()
         {
             var folderPath = KnownFolders.PicturesLibrary;
-            _files = await folderPath.GetFilesAsync();
+            _files = await folderPath.GetFilesAsync(CommonFileQuery.DefaultQuery, 0, 10);
         }
 
         private async void LoadPhoto()
