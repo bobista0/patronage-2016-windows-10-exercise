@@ -60,7 +60,7 @@ namespace UWP
             for (int i = 0; i < _files.Count; i++)
             {
                 var file = _files[i];
-                if (HasPhotoExtension(file))
+                if (ExtensionCheckService.Instance.HasPhotoExtension(file))
                 {
                     using (var fileStream = await file.OpenReadAsync())
                     {
@@ -74,24 +74,6 @@ namespace UWP
             }
 
             ShowMessageService.Instance.ShowMessage("There is no photo file to display!");
-        }
-
-        private bool HasPhotoExtension(IStorageItem item)
-        {
-            return HasSpecificExtension(item, ".jpg", ".jpeg", ".png", ".tif", ".bmp");
-        }
-
-        private bool HasSpecificExtension(IStorageItem item, params string[] extensions)
-        {
-            var result = false;
-
-            foreach (var extension in extensions)
-            {
-                if (result = Path.GetExtension(item.Name).Equals(extension, StringComparison.CurrentCultureIgnoreCase))
-                    break;
-            }
-
-            return result;
         }
         #endregion
     }
