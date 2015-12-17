@@ -5,6 +5,7 @@ using UWP.Services;
 using Windows.Storage;
 using Windows.Storage.Search;
 using Windows.UI.Xaml.Controls;
+using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media.Imaging;
 
 namespace UWP
@@ -12,6 +13,7 @@ namespace UWP
     public sealed partial class MainPage : Page
     {
         #region PRIVATE FIELDS
+        private StorageFile _currentPhoto;
         private static IReadOnlyList<StorageFile> _files;
         #endregion
 
@@ -47,30 +49,46 @@ namespace UWP
 
         private async void LoadPhoto()
         {
-            if (_files == null) return;
-            if (_files.Count == 0)
+            if (_files == null || _files.Count == 0)
             {
                 ShowMessageService.Instance.ShowMessage("The picture library is empty!");
-                return;
             }
-
-            for (int i = 0; i < _files.Count; i++)
+            else
             {
-                var file = _files[i];
-                if (ExtensionCheckService.Instance.HasPhotoExtension(file))
+                foreach (var file in _files)
                 {
-                    using (var fileStream = await file.OpenReadAsync())
+                    if (ExtensionCheckService.Instance.HasPhotoExtension(file))
                     {
-                        var photo = new BitmapImage();
-                        photo.SetSource(fileStream);
-                        DisplayedPhoto.Source = photo;
+                        if (_currentPhoto == file)
+                            continue;
 
-                        return;
+                        try
+                        {
+                            using (var fileStream = await file.OpenReadAsync())
+                            {
+                                var photo = new BitmapImage();
+                                photo.SetSource(fileStream);
+                                DisplayedPhoto.Source = photo;
+                                _currentPhoto = file;
+                                return;
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            ShowMessageService.Instance.ShowMessage(ex.Message);
+                        }
                     }
                 }
+
+                ShowMessageService.Instance.ShowMessage("There is no photo file to display!");
             }
 
-            ShowMessageService.Instance.ShowMessage("There is no photo file to display!");
+            return;
+        }
+
+        private void OnDisplayedPhotoTapped(object sender, TappedRoutedEventArgs e)
+        {
+            LoadPhoto();
         }
         #endregion
     }
