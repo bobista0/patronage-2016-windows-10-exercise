@@ -9,10 +9,31 @@
 
     <Grid x:Name="LayoutRoot" Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
         <Image
+            Source="/Assets/Images/sample.jpg"
             Tapped="OnDisplayedPhotoTapped"
             Stretch="UniformToFill"
             Name="DisplayedPhoto" 
             HorizontalAlignment="Center"
             VerticalAlignment="Center"/>
+        <Border
+            Background="White"
+            VerticalAlignment="Bottom">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+
+                <StackPanel Grid.Column="0">
+                    <TextBlock>Size: </TextBlock>
+                    <TextBlock>Date: </TextBlock>
+                </StackPanel>
+
+                <StackPanel Grid.Column="1">
+                    <TextBlock>Lat: </TextBlock>
+                    <TextBlock>Lon: </TextBlock>
+                </StackPanel>
+            </Grid>
+        </Border>
     </Grid>
 </Page>
