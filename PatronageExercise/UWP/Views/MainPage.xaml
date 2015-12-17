@@ -16,7 +16,8 @@
             HorizontalAlignment="Center"
             VerticalAlignment="Center"/>
         <Border
-            Background="White"
+            Opacity="0.5"
+            Background="Black"
             VerticalAlignment="Bottom">
             <Grid>
                 <Grid.ColumnDefinitions>
@@ -24,14 +25,14 @@
                     <ColumnDefinition Width="*" />
                 </Grid.ColumnDefinitions>
 
-                <StackPanel Grid.Column="0">
-                    <TextBlock>Size: </TextBlock>
-                    <TextBlock>Date: </TextBlock>
+                <StackPanel Margin="10,0,0,0" Grid.Column="0">
+                    <TextBlock Foreground="Yellow">Size: </TextBlock>
+                    <TextBlock Foreground="Yellow">Date: </TextBlock>
                 </StackPanel>
 
-                <StackPanel Grid.Column="1">
-                    <TextBlock>Lat: </TextBlock>
-                    <TextBlock>Lon: </TextBlock>
+                <StackPanel Margin="10,0,0,0" Grid.Column="1">
+                    <TextBlock Foreground="Yellow">Lat: </TextBlock>
+                    <TextBlock Foreground="Yellow">Lon: </TextBlock>
                 </StackPanel>
             </Grid>
         </Border>
