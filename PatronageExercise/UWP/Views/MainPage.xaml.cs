@@ -47,13 +47,10 @@ namespace UWP
 
         private async void LoadPhoto()
         {
-            if (_files == null)
-                return;
-
+            if (_files == null) return;
             if (_files.Count == 0)
             {
                 ShowMessageService.Instance.ShowMessage("The picture library is empty!");
-
                 return;
             }
 
