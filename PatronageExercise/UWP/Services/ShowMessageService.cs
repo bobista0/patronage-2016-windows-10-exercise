@@ -6,7 +6,7 @@ namespace UWP.Services
 {
     public sealed class ShowMessageService
     {
-        #region SINGLETON IMPLEMENTATION
+        #region LAZY-SINGLETON IMPLEMENTATION
         private static readonly Lazy<ShowMessageService> lazy = new Lazy<ShowMessageService>(() => new ShowMessageService());
         public static ShowMessageService Instance
         {
