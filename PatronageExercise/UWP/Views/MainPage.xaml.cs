@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using UWP.Services;
 using Windows.Storage;
 using Windows.Storage.Search;
 using Windows.UI;
@@ -32,8 +33,19 @@ namespace UWP
         #region METHODS
         public static async void GetFiles()
         {
-            var folderPath = KnownFolders.PicturesLibrary;
-            _files = await folderPath.GetFilesAsync(CommonFileQuery.DefaultQuery, 0, 10);
+            try
+            {
+                var folderPath = KnownFolders.PicturesLibrary;
+                _files = await folderPath.GetFilesAsync(CommonFileQuery.DefaultQuery, 0, 10);
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                ShowMessageService.Instance.ShowMessage(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                ShowMessageService.Instance.ShowMessage(ex.Message);
+            }
         }
 
         private async void LoadPhoto()
@@ -43,7 +55,8 @@ namespace UWP
 
             if (_files.Count == 0)
             {
-                ShowErrorMessage("The picture library is empty!");
+                ShowMessageService.Instance.ShowMessage("The picture library is empty!");
+
                 return;
             }
 
@@ -57,40 +70,31 @@ namespace UWP
                         var photo = new BitmapImage();
                         photo.SetSource(fileStream);
                         DisplayedPhoto.Source = photo;
-                    }
 
-                    break;
+                        return;
+                    }
                 }
             }
+
+            ShowMessageService.Instance.ShowMessage("There is no photo file to display!");
         }
 
         private bool HasPhotoExtension(IStorageItem item)
         {
-            return Path.GetExtension(item.Name).Equals(".jpg", StringComparison.CurrentCultureIgnoreCase)
-                || Path.GetExtension(item.Name).Equals(".jpeg", StringComparison.CurrentCultureIgnoreCase)
-                || Path.GetExtension(item.Name).Equals(".png", StringComparison.CurrentCultureIgnoreCase)
-                || Path.GetExtension(item.Name).Equals(".bmp", StringComparison.CurrentCultureIgnoreCase);
+            return HasSpecificExtension(item, ".jpg", ".jpeg", ".png", ".tif", ".bmp");
         }
 
-        private void ShowErrorMessage(string message)
+        private bool HasSpecificExtension(IStorageItem item, params string[] extensions)
         {
-            var textBlock = new TextBlock()
-            {
-                HorizontalAlignment = HorizontalAlignment.Center,
-                VerticalAlignment = VerticalAlignment.Center,
-                Foreground = new SolidColorBrush(Colors.White),
-                Text = message
-            };
+            var result = false;
 
-            var border = new Border()
+            foreach (var extension in extensions)
             {
-                Width = 300,
-                Height = 300,
-                Background = new SolidColorBrush(Colors.Red),
-                Child = textBlock
-            };
+                if (result = Path.GetExtension(item.Name).Equals(extension, StringComparison.CurrentCultureIgnoreCase))
+                    break;
+            }
 
-            LayoutRoot.Children.Add(border);
+            return result;
         }
         #endregion
     }
