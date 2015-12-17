@@ -4,10 +4,7 @@ using System.IO;
 using UWP.Services;
 using Windows.Storage;
 using Windows.Storage.Search;
-using Windows.UI;
-using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
-using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Media.Imaging;
 
 namespace UWP
