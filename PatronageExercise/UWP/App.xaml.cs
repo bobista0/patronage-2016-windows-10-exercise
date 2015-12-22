@@ -1,4 +1,5 @@
 ﻿using System;
+using UWP.Services;
 using Windows.ApplicationModel;
 using Windows.ApplicationModel.Activation;
 using Windows.UI.Xaml;
@@ -14,7 +15,7 @@ namespace UWP
             this.InitializeComponent();
             this.Suspending += OnSuspending;
 
-            MainPage.GetFiles();
+            PhotoDisplayService.Instance.GetFiles();
         }
 
         protected override void OnLaunched(LaunchActivatedEventArgs e)
