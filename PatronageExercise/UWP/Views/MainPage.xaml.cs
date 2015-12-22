@@ -1,20 +1,17 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.IO;
+using System.ComponentModel;
+using UWP.Models;
 using UWP.Services;
-using Windows.Storage;
-using Windows.Storage.Search;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media.Imaging;
 
 namespace UWP
 {
-    public sealed partial class MainPage : Page
+    public sealed partial class MainPage : Page, INotifyPropertyChanged
     {
-        #region PRIVATE FIELDS
-        private StorageFile _currentPhoto;
-        private static IReadOnlyList<StorageFile> _files;
+        #region FIELDS
+        public event PropertyChangedEventHandler PropertyChanged;
         #endregion
 
         #region CONSTRUCTORS
@@ -22,73 +19,113 @@ namespace UWP
         {
             InitializeComponent();
 
-            LoadPhoto();
+            DisplayPhoto();
         }
         #endregion
 
         #region PROPERTIES
-        #endregion
-
-        #region METHODS
-        public static async void GetFiles()
+        private BitmapImage _loadedPhoto;
+        public BitmapImage LoadedPhoto
         {
-            try
+            get { return _loadedPhoto; }
+            set
             {
-                var folderPath = KnownFolders.PicturesLibrary;
-                _files = await folderPath.GetFilesAsync(CommonFileQuery.DefaultQuery, 0, 10);
-            }
-            catch (UnauthorizedAccessException ex)
-            {
-                ShowMessageService.Instance.ShowMessage(ex.Message);
-            }
-            catch (Exception ex)
-            {
-                ShowMessageService.Instance.ShowMessage(ex.Message);
+                if (value != _loadedPhoto)
+                {
+                    _loadedPhoto = value;
+                    OnPropertyChanged("LoadedPhoto");
+                }
             }
         }
 
-        private async void LoadPhoto()
+        private ulong _size;
+        public ulong Size
         {
-            if (_files == null || _files.Count == 0)
+            get { return _size; }
+            set
             {
-                ShowMessageService.Instance.ShowMessage("The picture library is empty!");
-            }
-            else
-            {
-                foreach (var file in _files)
+                if (value != _size)
                 {
-                    if (ExtensionCheckService.Instance.HasPhotoExtension(file))
-                    {
-                        if (_currentPhoto == file)
-                            continue;
-
-                        try
-                        {
-                            using (var fileStream = await file.OpenReadAsync())
-                            {
-                                var photo = new BitmapImage();
-                                photo.SetSource(fileStream);
-                                DisplayedPhoto.Source = photo;
-                                _currentPhoto = file;
-                                return;
-                            }
-                        }
-                        catch (Exception ex)
-                        {
-                            ShowMessageService.Instance.ShowMessage(ex.Message);
-                        }
-                    }
+                    _size = value;
+                    OnPropertyChanged("Size");
                 }
-
-                ShowMessageService.Instance.ShowMessage("There is no photo file to display!");
             }
+        }
 
-            return;
+        private DateTime _date;
+        public DateTime Date
+        {
+            get { return _date; }
+            set
+            {
+                if (value != _date)
+                {
+                    _date = value;
+                    OnPropertyChanged("Date");
+                }
+            }
+        }
+
+        private double[] _latitude;
+        public double[] Latitude
+        {
+            get { return _latitude; }
+            set
+            {
+                if (value != _latitude)
+                {
+                    _latitude = value;
+                    OnPropertyChanged("Latitude");
+                    
+                }
+            }
+        }
+
+        private double[] _longitude;
+        public double[] Longitude
+        {
+            get { return _longitude; }
+            set
+            {
+                if (value != _longitude)
+                {
+                    _longitude = value;
+                    OnPropertyChanged("Longitude");
+                }
+            }
+        }
+        #endregion
+
+        #region METHODS
+        private void OnPropertyChanged(string name)
+        {
+            PropertyChangedEventHandler handler = PropertyChanged;
+            if (handler != null)
+            {
+                handler(this, new PropertyChangedEventArgs(name));
+            }
+        }
+
+        private async void DisplayPhoto()
+        {
+            await PhotoDisplayService.Instance.LoadPhoto();
+            var photo = PhotoDisplayService.Instance.GetPhoto();
+
+            LoadedPhoto = photo.Source;
+            DisplayPhotoInfo(photo);
+        }
+
+        private void DisplayPhotoInfo(Photo photo)
+        {
+            Size = photo.Size;
+            Date = photo.Date;
+            Latitude = photo.Latitude;
+            Longitude = photo.Longitude;
         }
 
         private void OnDisplayedPhotoTapped(object sender, TappedRoutedEventArgs e)
         {
-            LoadPhoto();
+            DisplayPhoto();
         }
         #endregion
     }
