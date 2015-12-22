@@ -8,15 +8,16 @@
     mc:Ignorable="d">
 
     <Grid x:Name="LayoutRoot" Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
-        <Image
-            Source="/Assets/Images/sample.jpg"
+        <!--/Assets/Images/sample.jpg" -->
+        <Image 
+            Source="{x:Bind LoadedPhoto, Mode=OneWay}" 
             Tapped="OnDisplayedPhotoTapped"
             Stretch="UniformToFill"
             Name="DisplayedPhoto" 
             HorizontalAlignment="Center"
             VerticalAlignment="Center"/>
         <Border
-            Opacity="0.5"
+            Opacity="0.7"
             Background="Black"
             VerticalAlignment="Bottom">
             <Grid>
@@ -26,13 +27,25 @@
                 </Grid.ColumnDefinitions>
 
                 <StackPanel Margin="10,0,0,0" Grid.Column="0">
-                    <TextBlock Foreground="Yellow">Size: </TextBlock>
-                    <TextBlock Foreground="Yellow">Date: </TextBlock>
+                    <TextBlock Foreground="Yellow">
+                        <Run Text="Size: " />
+                       <Run Text="{x:Bind Size, Mode=OneWay, Converter={StaticResource SizeToStringConverter}}" /> 
+                    </TextBlock>
+                    <TextBlock Foreground="Yellow">
+                        <Run Text="Date: " />
+                        <Run Text="{x:Bind Date, Mode=OneWay, Converter={StaticResource DateToStringConverter}}" />
+                    </TextBlock>
                 </StackPanel>
 
                 <StackPanel Margin="10,0,0,0" Grid.Column="1">
-                    <TextBlock Foreground="Yellow">Lat: </TextBlock>
-                    <TextBlock Foreground="Yellow">Lon: </TextBlock>
+                    <TextBlock Foreground="Yellow">
+                        <Run Text="Lat: " />
+                        <Run Text="{x:Bind Latitude, Mode=OneWay, Converter={StaticResource CoordinatesToStringConverter}}" />
+                    </TextBlock>
+                    <TextBlock Foreground="Yellow">
+                        <Run Text="Lon: " />
+                        <Run Text="{x:Bind Longitude, Mode=OneWay, Converter={StaticResource CoordinatesToStringConverter}}" />
+                    </TextBlock>
                 </StackPanel>
             </Grid>
         </Border>
