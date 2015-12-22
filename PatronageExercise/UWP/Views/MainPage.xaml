@@ -29,7 +29,7 @@
                 <StackPanel Margin="10,0,0,0" Grid.Column="0">
                     <TextBlock Foreground="Yellow">
                         <Run Text="Size: " />
-                       <Run Text="{x:Bind Size, Mode=OneWay, Converter={StaticResource SizeToStringConverter}}" /> 
+                       <Run Text="{x:Bind Size, Mode=OneWay, Converter={StaticResource SizeToStringConverter}}" />
                     </TextBlock>
                     <TextBlock Foreground="Yellow">
                         <Run Text="Date: " />
@@ -50,4 +50,15 @@
             </Grid>
         </Border>
     </Grid>
+    
+    <Page.BottomAppBar>
+        <CommandBar IsTabStop="True">
+            <AppBarButton
+                Icon="Pictures"
+                Label="Gallery" />
+            <AppBarButton
+                Icon="Camera"
+                Label="Capture Photo" />
+        </CommandBar>
+    </Page.BottomAppBar>
 </Page>
