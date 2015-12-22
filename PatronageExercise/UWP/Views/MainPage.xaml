@@ -52,7 +52,7 @@
     </Grid>
     
     <Page.BottomAppBar>
-        <CommandBar IsTabStop="True">
+        <CommandBar>
             <AppBarButton
                 Icon="Pictures"
                 Label="Gallery" />
