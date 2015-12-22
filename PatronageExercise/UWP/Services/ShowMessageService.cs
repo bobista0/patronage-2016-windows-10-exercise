@@ -16,11 +16,17 @@ namespace UWP.Services
         #endregion
 
         #region METHODS
-        public async void ShowMessage(string message)
+        public async void ShowMessage(string message, UICommandInvokedHandler handler = null)
         {
             var messageDialog = new MessageDialog(message);
-            messageDialog.Commands.Add(new UICommand("OK", new UICommandInvokedHandler(this.CommandInvokeHandler)));
+            messageDialog.Commands.Add(new UICommand("OK", handler));
+            messageDialog.DefaultCommandIndex = 0;
             await messageDialog.ShowAsync();
+        }
+
+        public void ShowMessageWithApplicationExit(string message)
+        {
+            ShowMessage(message, new UICommandInvokedHandler(this.CommandInvokeHandler));
         }
 
         private void CommandInvokeHandler(IUICommand command)
