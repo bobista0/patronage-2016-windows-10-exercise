@@ -15,7 +15,7 @@ namespace UWP
             this.InitializeComponent();
             this.Suspending += OnSuspending;
 
-            PhotoDisplayService.Instance.GetFiles();
+            PhotoCameraService.Instance.GetFiles();
         }
 
         protected override void OnLaunched(LaunchActivatedEventArgs e)
