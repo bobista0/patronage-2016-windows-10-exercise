@@ -99,9 +99,10 @@
     <Compile Include="Converters\CoordinatesToStringConverter.cs" />
     <Compile Include="Converters\DateToStringConverter.cs" />
     <Compile Include="Converters\SizeToStringConverter.cs" />
+    <Compile Include="Interfaces\IPhotoCameraService.cs" />
     <Compile Include="Models\Photo.cs" />
     <Compile Include="Services\ExtensionCheckService.cs" />
-    <Compile Include="Services\PhotoDisplayService.cs" />
+    <Compile Include="Services\PhotoCameraService.cs" />
     <Compile Include="Services\ShowMessageService.cs" />
     <Compile Include="Views\MainPage.xaml.cs">
       <DependentUpon>MainPage.xaml</DependentUpon>
