@@ -1,7 +1,7 @@
 ﻿using System;
 using System.ComponentModel;
-using UWP.Models;
 using UWP.Services;
+using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media.Imaging;
@@ -20,6 +20,7 @@ namespace UWP
             InitializeComponent();
 
             DisplayPhoto();
+            CheckCameraAvailability();
         }
         #endregion
 
@@ -76,7 +77,7 @@ namespace UWP
                 {
                     _latitude = value;
                     OnPropertyChanged("Latitude");
-                    
+
                 }
             }
         }
@@ -94,9 +95,40 @@ namespace UWP
                 }
             }
         }
+
+        private bool _isCameraDeviceAvailable = false;
+        public bool IsCameraDeviceAvailable
+        {
+            get { return _isCameraDeviceAvailable; }
+            set
+            {
+                if (value != _isCameraDeviceAvailable)
+                {
+                    _isCameraDeviceAvailable = value;
+                    OnPropertyChanged("IsCameraDeviceAvailable");
+                }
+            }
+        }
         #endregion
 
         #region METHODS
+
+        private async void DisplayPhoto()
+        {
+            var photo = await PhotoCameraService.Instance.LoadAndGetPhoto();
+
+            LoadedPhoto = photo.Source;
+            Size = photo.Size;
+            Date = photo.Date;
+            Latitude = photo.Latitude;
+            Longitude = photo.Longitude;
+        }
+
+        private async void CheckCameraAvailability()
+        {
+            IsCameraDeviceAvailable = await PhotoCameraService.Instance.IsCameraAvailable();
+        }
+
         private void OnPropertyChanged(string name)
         {
             PropertyChangedEventHandler handler = PropertyChanged;
@@ -106,26 +138,19 @@ namespace UWP
             }
         }
 
-        private async void DisplayPhoto()
-        {
-            await PhotoDisplayService.Instance.LoadPhoto();
-            var photo = PhotoDisplayService.Instance.GetPhoto();
-
-            LoadedPhoto = photo.Source;
-            DisplayPhotoInfo(photo);
-        }
-
-        private void DisplayPhotoInfo(Photo photo)
-        {
-            Size = photo.Size;
-            Date = photo.Date;
-            Latitude = photo.Latitude;
-            Longitude = photo.Longitude;
-        }
-
         private void OnDisplayedPhotoTapped(object sender, TappedRoutedEventArgs e)
         {
             DisplayPhoto();
+        }
+
+        private void OnCapturePhotoAppBarButtonClick(object sender, RoutedEventArgs e)
+        {
+            PhotoCameraService.Instance.CaptureAndSavePhoto();
+        }
+
+        private void OnRefreshAppBarButtonClick(object sender, RoutedEventArgs e)
+        {
+            CheckCameraAvailability();
         }
         #endregion
     }
