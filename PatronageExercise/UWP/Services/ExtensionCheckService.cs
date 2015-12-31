@@ -8,19 +8,20 @@ namespace UWP.Services
     {
         #region LAZY-SINGLETON IMPLEMENTATION
         private static readonly Lazy<ExtensionCheckService> lazy = new Lazy<ExtensionCheckService>(() => new ExtensionCheckService());
-        public static ExtensionCheckService Instance
-        {
-            get { return lazy.Value; }
-        }
+        public static ExtensionCheckService Instance { get { return lazy.Value; } }
         private ExtensionCheckService() { }
         #endregion
 
         #region METHODS
+        public bool HasGraphicExtension(IStorageItem item)
+        {
+            return HasSpecificExtension(item, ".png", ".tif", ".bmp")
+                || HasPhotoExtension(item);
+        }
         public bool HasPhotoExtension(IStorageItem item)
         {
-            return HasSpecificExtension(item, ".jpg", ".jpeg", ".png", ".tif", ".bmp");
+            return HasSpecificExtension(item, ".jpg", ".jpeg");
         }
-
         public bool HasSpecificExtension(IStorageItem item, params string[] extensions)
         {
             var result = false;

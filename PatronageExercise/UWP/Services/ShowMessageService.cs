@@ -8,14 +8,11 @@ namespace UWP.Services
     {
         #region LAZY-SINGLETON IMPLEMENTATION
         private static readonly Lazy<ShowMessageService> lazy = new Lazy<ShowMessageService>(() => new ShowMessageService());
-        public static ShowMessageService Instance
-        {
-            get { return lazy.Value; }
-        }
+        public static ShowMessageService Instance { get { return lazy.Value; } }
         private ShowMessageService() { }
         #endregion
 
-        #region METHODS
+        #region PUBLIC METHODS
         public async void ShowMessage(string message, UICommandInvokedHandler handler = null)
         {
             var messageDialog = new MessageDialog(message);
@@ -23,12 +20,13 @@ namespace UWP.Services
             messageDialog.DefaultCommandIndex = 0;
             await messageDialog.ShowAsync();
         }
-
         public void ShowMessageWithApplicationExit(string message)
         {
             ShowMessage(message, new UICommandInvokedHandler(this.CommandInvokeHandler));
         }
+        #endregion
 
+        #region PRIVATE METHODS
         private void CommandInvokeHandler(IUICommand command)
         {
             Application.Current.Exit();
