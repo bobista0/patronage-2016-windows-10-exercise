@@ -9,14 +9,14 @@ using Windows.UI.Xaml.Media.Imaging;
 
 namespace UWP.Views
 {
-    public sealed partial class MainPage : Page, INotifyPropertyChanged
+    public sealed partial class DetailPage : Page, INotifyPropertyChanged
     {
         #region FIELDS
         public event PropertyChangedEventHandler PropertyChanged;
         #endregion
 
         #region CONSTRUCTORS
-        public MainPage()
+        public DetailPage()
         {
             InitializeComponent();
 

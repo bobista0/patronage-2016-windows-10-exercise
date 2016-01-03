@@ -46,7 +46,7 @@ namespace UWP
 
             if (rootFrame.Content == null)
             {
-                rootFrame.Navigate(typeof(MainPage), e.Arguments);
+                rootFrame.Navigate(typeof(DetailPage), e.Arguments);
             }
             Window.Current.Activate();
         }
