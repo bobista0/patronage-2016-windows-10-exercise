@@ -17,7 +17,7 @@ using Windows.Storage.Streams;
 using Windows.System.Profile;
 using Windows.UI.Xaml.Media.Imaging;
 
-//TODO: sprawdzić czyjest wszedzie 'var'.
+//TODO: sprawdzić czy jest wszedzie lokalnie 'var'.
 //TODO: przerobić wcięcia, ewentualnie oddzielić kod
 //TODO: zrefaktoryzować powtórzenia
 //TODO: zrobić porządek w zmiennych zwracanych -> albo 'result' albo 'nazwa_zwracanego_obiektu'
@@ -137,7 +137,7 @@ namespace UWP.Services
                 GetFiles();
 
             if (_files.Count == 0)
-                ShowMessageService.Instance.ShowMessageWithApplicationExit("The picture library is empty!");
+                ShowMessageService.Instance.ShowMessage("The picture library is empty!");
         }
         private async Task GetPhotoFromFile(StorageFile file)
         {
@@ -177,7 +177,7 @@ namespace UWP.Services
             }
             catch (Exception ex)
             {
-                ShowMessageService.Instance.ShowMessageWithApplicationExit(ex.Message);
+                ShowMessageService.Instance.ShowMessage(ex.Message);
             }
         }
         private void GetMetaDataInfoFromPhoto(StorageFile file, IRandomAccessStream fileStream)
