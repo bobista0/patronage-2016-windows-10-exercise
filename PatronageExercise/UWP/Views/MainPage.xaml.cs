@@ -1,12 +1,13 @@
 ﻿using System;
 using System.ComponentModel;
+using UWP.Models;
 using UWP.Services;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media.Imaging;
 
-namespace UWP
+namespace UWP.Views
 {
     public sealed partial class MainPage : Page, INotifyPropertyChanged
     {
@@ -117,6 +118,12 @@ namespace UWP
         {
             var photo = await PhotoCameraService.Instance.LoadAndGetPhoto();
 
+            if (photo != null)
+                SetPhoto(photo);
+        }
+
+        private void SetPhoto(Photo photo)
+        {
             LoadedPhoto = photo.Source;
             Size = photo.Size;
             Date = photo.Date;
