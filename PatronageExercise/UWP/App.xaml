@@ -2,15 +2,7 @@
     x:Class="UWP.App"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:local="using:UWP.Converters"
     RequestedTheme="Light">
-
-    <Application.Resources>
-        <ResourceDictionary>
-            <local:DateToStringConverter x:Key="DateToStringConverter" />
-            <local:SizeToStringConverter x:Key="SizeToStringConverter" />
-            <local:CoordinatesToStringConverter x:Key="CoordinatesToStringConverter" />
-        </ResourceDictionary>
-    </Application.Resources>
-
 </Application>
