@@ -159,6 +159,11 @@ namespace UWP.Views
         {
             CheckCameraAvailability();
         }
+
+        private void OnGalleryAppBarButtonClick(object sender, RoutedEventArgs e)
+        {
+            Frame.Navigate(typeof(GalleryPage));
+        }
         #endregion
     }
 }
