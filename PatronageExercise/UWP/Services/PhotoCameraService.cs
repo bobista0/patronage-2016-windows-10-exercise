@@ -35,14 +35,15 @@ namespace UWP.Services
         #endregion
 
         #region PRIVATE FIELDS
-        private IReadOnlyList<StorageFile> _files;
+        private readonly string _deviceFamilyInfo;
+
+        private IReadOnlyList<StorageFile> _photoFiles;
         private BitmapImage _photo;
         private ulong _size;
         private DateTime _date;
         private double[] _latitude;
         private double[] _longitude;
         private int _fileIndex;
-        private readonly string _deviceFamilyInfo;
         #endregion
 
         #region PUBLIC METHODS
@@ -69,18 +70,21 @@ namespace UWP.Services
 
             return result;
         }
-        public async void GetFiles()
+        public void GetFiles()
         {
             try
             {
                 var folderPath = KnownFolders.PicturesLibrary;
-                _files = await folderPath.GetFilesAsync(CommonFileQuery.DefaultQuery, 0, 10);
+                List<StorageFile> photoFiles = new List<StorageFile>();
+                GetPhotoFilesFromPicturesLibraryFolders(photoFiles, folderPath);
+                _photoFiles = photoFiles;
             }
             catch (Exception ex)
             {
                 ShowMessageService.Instance.ShowMessageWithApplicationExit(ex.Message);
             }
         }
+
         public string GetDeviceFamilyInfo()
         {
             return _deviceFamilyInfo;
@@ -102,6 +106,7 @@ namespace UWP.Services
                         if (cameraDevice.IsEnabled)
                         {
                             result = true;
+                            break;
                         }
                     }
                 }
@@ -117,80 +122,84 @@ namespace UWP.Services
         {
             CheckIfFilesExist();
 
-            if (_fileIndex < _files.Count)
+            if (_fileIndex < _photoFiles.Count)
             {
-                for (int i = _fileIndex; i < _files.Count; i++)
-                {
-                    _fileIndex = (_fileIndex + 1) % _files.Count;
-                    var file = _files[i];
-                    if (ExtensionCheckService.Instance.HasGraphicExtension(file))
-                    {
-                        await GetPhotoFromFile(file);
-                        break;
-                    }
-                }
+                var file = _photoFiles[_fileIndex];
+                await OpenPhotoFileStreamAndLoadSources(file);
+                _fileIndex = (_fileIndex + 1) % _photoFiles.Count;
             }
         }
         private void CheckIfFilesExist()
         {
-            if (_files == null)
+            if (_photoFiles == null)
                 GetFiles();
 
-            if (_files.Count == 0)
+            if (_photoFiles.Count == 0)
                 ShowMessageService.Instance.ShowMessage("The picture library is empty!");
         }
-        private async Task GetPhotoFromFile(StorageFile file)
+        private async Task OpenPhotoFileStreamAndLoadSources(StorageFile file)
         {
             try
             {
-                _photo = new BitmapImage();
-
                 using (var fileStream = await file.OpenAsync(FileAccessMode.Read))
                 {
-                    GetMetaDataInfoFromPhoto(file, fileStream);
-
-                    if (ExtensionCheckService.Instance.HasPhotoExtension(file))
-                    {
-                        var clonedStream = fileStream.CloneStream();
-                        using (var reader = new ExifReader(clonedStream.AsStreamForRead()))
-                        {
-                            try
-                            {
-                                GetExifInfoFromPhoto(reader);
-                            }
-                            catch (Exception ex)
-                            {
-                                ShowMessageService.Instance.ShowMessage(ex.Message);
-                            }
-                        }
-                        clonedStream.Dispose();
-                    }
-                    else
-                    {
-                        _latitude = null;
-                        _longitude = null;
-                    }
-
-                    await _photo.SetSourceAsync(fileStream);
+                    GetMetaDataInfoFromPhotoAndSetToServiceFields(file, fileStream);
+                    SetPhotoSourceFromFileStream(fileStream);
                 }
-
             }
             catch (Exception ex)
             {
                 ShowMessageService.Instance.ShowMessage(ex.Message);
             }
         }
-        private void GetMetaDataInfoFromPhoto(StorageFile file, IRandomAccessStream fileStream)
+        private void GetMetaDataInfoFromPhotoAndSetToServiceFields(StorageFile file, IRandomAccessStream fileStream)
         {
-            ulong size;
-            size = fileStream.Size;
-            _size = size;
+            _size = GetSizeInfoFromPhoto(fileStream);
+            _date = GetDataCreatedInfoFromPhoto(file);
+            _latitude = null;
+            _longitude = null;
 
-            DateTime date;
-            date = file.DateCreated.DateTime;
-            _date = date;
+            if (ExtensionCheckService.Instance.HasPhotoExtension(file))
+            {
+                var clonedStream = fileStream.CloneStream();
+                using (var reader = new ExifReader(clonedStream.AsStreamForRead()))
+                {
+                    try
+                    {
+                        SetGpsLatitudeAndLongitudeInfoFromPhoto(reader);
+                    }
+                    catch (Exception ex)
+                    {
+                        ShowMessageService.Instance.ShowMessage(ex.Message);
+                    }
+                }
+                clonedStream.Dispose();
+            }
         }
-        private void GetExifInfoFromPhoto(ExifReader reader)
+        private async void SetPhotoSourceFromFileStream(IRandomAccessStream fileStream)
+        {
+            _photo = new BitmapImage();
+            await _photo.SetSourceAsync(fileStream);
+        }
+        private ulong GetSizeInfoFromPhoto(IRandomAccessStream fileStream)
+        {
+            ulong result;
+
+            _size = result = ulong.MinValue;
+            result = fileStream.Size;
+
+            return result;
+        }
+        private DateTime GetDataCreatedInfoFromPhoto(StorageFile file)
+        {
+            DateTime result;
+
+            _date = result = DateTime.MinValue;
+            result = file.DateCreated.DateTime;
+
+            return result;
+        }
+        private void SetGpsLatitudeAndLongitudeInfoFromPhoto(ExifReader reader)
         {
             double[] latitude;
             reader.GetTagValue(ExifTags.GPSLatitude, out latitude);
@@ -299,6 +308,27 @@ namespace UWP.Services
                   .Append(".jpg");
 
             return result.ToString();
+        }
+        private async void GetPhotoFilesFromPicturesLibraryFolders(List<StorageFile> photoFiles, StorageFolder storageFolder)
+        {
+            var folders = await storageFolder.GetFoldersAsync();
+            var files = await storageFolder.GetFilesAsync();
+
+            if (folders.Count > 0)
+            {
+                foreach (var folder in folders)
+                {
+                    GetPhotoFilesFromPicturesLibraryFolders(photoFiles, folder);
+                }
+            }
+            if (files.Count > 0)
+            {
+                foreach (var file in files)
+                {
+                    if (ExtensionCheckService.Instance.HasGraphicExtension(file))
+                        photoFiles.Add(file);
+                }
+            }
         }
         #endregion
     }
