@@ -11,6 +11,7 @@ using Windows.Devices.Enumeration;
 using Windows.Foundation;
 using Windows.Media.Capture;
 using Windows.Storage;
+using Windows.Storage.FileProperties;
 using Windows.Storage.Pickers;
 using Windows.Storage.Search;
 using Windows.Storage.Streams;
@@ -20,7 +21,7 @@ using Windows.UI.Xaml.Media.Imaging;
 //TODO: sprawdzić czy jest wszedzie lokalnie 'var'.
 //TODO: przerobić wcięcia, ewentualnie oddzielić kod
 //TODO: zrefaktoryzować powtórzenia
-//TODO: zrobić porządek w zmiennych zwracanych -> albo 'result' albo 'nazwa_zwracanego_obiektu'
+//TODO: zrobić porządek w zmiennych zwracanych ->  'result' w public, 'nazwa_zwracanego_obiektu' w prywatnych
 namespace UWP.Services
 {
     public sealed class PhotoCameraService : IPhotoCameraService
@@ -36,7 +37,6 @@ namespace UWP.Services
 
         #region PRIVATE FIELDS
         private readonly string _deviceFamilyInfo;
-
         private IReadOnlyList<StorageFile> _photoFiles;
         private BitmapImage _photo;
         private ulong _size;
@@ -70,6 +70,13 @@ namespace UWP.Services
 
             return result;
         }
+        public async Task<List<Photo>> LoadAndGetGallery()
+        {
+            List<Photo> result;
+            result = await LoadGallery();
+            return result;
+
+        }
         public void GetFiles()
         {
             try
@@ -84,7 +91,6 @@ namespace UWP.Services
                 ShowMessageService.Instance.ShowMessageWithApplicationExit(ex.Message);
             }
         }
-
         public string GetDeviceFamilyInfo()
         {
             return _deviceFamilyInfo;
@@ -329,6 +335,29 @@ namespace UWP.Services
                         photoFiles.Add(file);
                 }
             }
+        }
+        private async Task<List<Photo>> LoadGallery()
+        {
+            CheckIfFilesExist();
+
+            List<Photo> photoGallery = null;
+            if(_photoFiles != null)
+            {
+                photoGallery = new List<Photo>();
+                foreach (var photoFile in _photoFiles)
+                {
+                    var photo = new Photo();
+                    photo.Name = photoFile.Name;
+                    using (var fileStream = await photoFile.GetThumbnailAsync(ThumbnailMode.PicturesView))
+                    {
+                        photo.Thumbnail = new BitmapImage();
+                        await photo.Thumbnail.SetSourceAsync(fileStream);
+                    }
+                    photoGallery.Add(photo);
+                }
+            }
+
+            return photoGallery;
         }
         #endregion
     }
