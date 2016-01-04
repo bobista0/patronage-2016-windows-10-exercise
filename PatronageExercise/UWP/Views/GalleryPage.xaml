@@ -3,11 +3,48 @@
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:local="using:UWP.Views"
+    xmlns:localModels="using:UWP.Models"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d">
 
     <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+
+        <GridView
+            HorizontalAlignment="Center"
+            HorizontalContentAlignment="Center"
+            VerticalAlignment="Top"
+            VerticalContentAlignment="Center"
+            ItemsSource="{x:Bind PhotoCollection, Mode=OneWay}"
+            ItemClick="OnGridViewItemClick">
+            <GridView.ItemTemplate>
+                <DataTemplate x:DataType="localModels:Photo">
+                    <Grid
+                        Margin="5,5,0,0"
+                        Width="160"
+                        Height="100">
+                        <Image
+                            HorizontalAlignment="Center"
+                            VerticalAlignment="Center"
+                            Stretch="UniformToFill"
+                            Source="{x:Bind Thumbnail, Mode=OneWay}" />
+                        <Border
+                            VerticalAlignment="Bottom"
+                            Opacity="0.7"
+                            Background="Black"
+                            Height="20">
+                            <TextBlock
+                                Margin="2,0,2,0"
+                                TextTrimming="CharacterEllipsis"
+                                Foreground="Yellow"
+                                FontSize="12"
+                                TextAlignment="Center"
+                                Text="{x:Bind Name, Mode=OneWay}"/>
+                        </Border>
+                    </Grid>
+                </DataTemplate>
+            </GridView.ItemTemplate>
+        </GridView>
 
     </Grid>
 </Page>
