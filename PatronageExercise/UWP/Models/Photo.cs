@@ -5,6 +5,8 @@ namespace UWP.Models
 {
     public class Photo
     {
+        public string Name { get; set; }
+        public BitmapImage Thumbnail { get; set; }
         public BitmapImage Source { get; set; }
         public ulong Size { get; set; }
         public DateTime Date { get; set; }
