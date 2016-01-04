@@ -63,6 +63,7 @@
                 Icon="Refresh"
                 Label="Refresh" />
             <AppBarButton
+                Click="OnGalleryAppBarButtonClick"
                 Icon="Pictures"
                 Label="Gallery" />
             <AppBarButton
