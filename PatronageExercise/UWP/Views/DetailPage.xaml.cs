@@ -1,7 +1,13 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using UWP.Models;
 using UWP.Services;
+using Windows.ApplicationModel;
+using Windows.ApplicationModel.DataTransfer;
+using Windows.Foundation;
+using Windows.Storage;
+using Windows.Storage.Streams;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Input;
@@ -21,7 +27,6 @@ namespace UWP.Views
             InitializeComponent();
 
             DisplayPhoto();
-            CheckCameraAvailability();
         }
         #endregion
 
@@ -96,24 +101,9 @@ namespace UWP.Views
                 }
             }
         }
-
-        private bool _isCameraDeviceAvailable = false;
-        public bool IsCameraDeviceAvailable
-        {
-            get { return _isCameraDeviceAvailable; }
-            set
-            {
-                if (value != _isCameraDeviceAvailable)
-                {
-                    _isCameraDeviceAvailable = value;
-                    OnPropertyChanged("IsCameraDeviceAvailable");
-                }
-            }
-        }
         #endregion
 
         #region METHODS
-
         private async void DisplayPhoto()
         {
             var photo = await PhotoCameraService.Instance.LoadAndGetPhoto();
@@ -122,18 +112,13 @@ namespace UWP.Views
                 SetPhoto(photo);
         }
 
-        private void SetPhoto(Photo photo)
+        private void SetPhoto(DetailPhoto photo)
         {
             LoadedPhoto = photo.Source;
             Size = photo.Size;
             Date = photo.Date;
             Latitude = photo.Latitude;
             Longitude = photo.Longitude;
-        }
-
-        private async void CheckCameraAvailability()
-        {
-            IsCameraDeviceAvailable = await PhotoCameraService.Instance.IsCameraAvailable();
         }
 
         private void OnPropertyChanged(string name)
@@ -150,19 +135,42 @@ namespace UWP.Views
             DisplayPhoto();
         }
 
-        private void OnCapturePhotoAppBarButtonClick(object sender, RoutedEventArgs e)
-        {
-            PhotoCameraService.Instance.CaptureAndSavePhoto();
-        }
-
-        private void OnRefreshAppBarButtonClick(object sender, RoutedEventArgs e)
-        {
-            CheckCameraAvailability();
-        }
-
         private void OnGalleryAppBarButtonClick(object sender, RoutedEventArgs e)
         {
             Frame.Navigate(typeof(GalleryPage));
+        }
+
+        private void OnShareAppBarButtonClick(object sender, RoutedEventArgs e)
+        {
+            var dataTransferManager = DataTransferManager.GetForCurrentView();
+            dataTransferManager.DataRequested += DataTransferManager_DataRequested;
+            DataTransferManager.ShowShareUI();
+        }
+
+        private async void DataTransferManager_DataRequested(DataTransferManager sender, DataRequestedEventArgs args)
+        {
+            var deferral = args.Request.GetDeferral();
+            args.Request.Data.SetText("Hello World!");
+            args.Request.Data.Properties.Title = "Share Example";
+            args.Request.Data.Properties.Description = "trololol olol ol o lolo";
+
+            try
+            {
+                var thumbnail = await PhotoCameraService.Instance.GetThumbnailOfCurrentPhoto();
+                args.Request.Data.Properties.Thumbnail = thumbnail;
+                var photoFile = PhotoCameraService.Instance.GetCurrentPhotoFile();
+                List<StorageFile> files = new List<StorageFile>();
+                files.Add(photoFile);
+                args.Request.Data.SetStorageItems(files);
+                var bitmap = PhotoCameraService.Instance.GetCurrentPhoto();
+                args.Request.Data.SetBitmap(bitmap);
+                args.Request.Data.SetData("id1", photoFile);
+
+            }
+            finally
+            {
+                deferral.Complete();
+            }
         }
         #endregion
     }
