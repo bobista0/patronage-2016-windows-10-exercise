@@ -13,10 +13,9 @@ namespace UWP
     {
         public App()
         {
+            PhotoCameraService.Instance.LoadFiles();
             this.InitializeComponent();
             this.Suspending += OnSuspending;
-
-            PhotoCameraService.Instance.GetFiles();
         }
 
         protected override void OnLaunched(LaunchActivatedEventArgs e)
@@ -46,7 +45,7 @@ namespace UWP
 
             if (rootFrame.Content == null)
             {
-                rootFrame.Navigate(typeof(DetailPage), e.Arguments);
+                rootFrame.Navigate(typeof(GalleryPage), e.Arguments);
             }
             Window.Current.Activate();
         }
