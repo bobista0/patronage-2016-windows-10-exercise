@@ -47,7 +47,7 @@ namespace UWP.Services
         #endregion
 
         #region PUBLIC METHODS
-        public async void CaptureAndSavePhoto()
+        public async Task CaptureAndSavePhoto()
         {
             var capturedPhoto = await CapturePhoto();
             if (capturedPhoto != null)
@@ -57,33 +57,36 @@ namespace UWP.Services
         {
             return await IsCameraDeviceExist();
         }
-        public async Task<Photo> LoadAndGetPhoto()
+        public async Task<DetailPhoto> LoadAndGetPhoto()
         {
-            Photo result = null;
+            DetailPhoto result = null;
 
             await LoadPhoto();
             if (_photo != null)
             {
-                result = new Photo();
+                result = new DetailPhoto();
                 SetPhotoInfo(result);
             }
 
             return result;
         }
-        public async Task<List<Photo>> LoadAndGetGallery()
+        public async Task<List<GalleryPhoto>> LoadAndGetGallery()
         {
-            List<Photo> result;
+            List<GalleryPhoto> result;
             result = await LoadGallery();
             return result;
-
         }
-        public void GetFiles()
+        public void LoadFiles()
         {
             try
             {
                 var folderPath = KnownFolders.PicturesLibrary;
-                List<StorageFile> photoFiles = new List<StorageFile>();
-                GetPhotoFilesFromPicturesLibraryFolders(photoFiles, folderPath);
+                List<StorageFile> photoFiles = null;
+                if (photoFiles == null)
+                {
+                    photoFiles = new List<StorageFile>();
+                    LoadPhotoFilesFromPicturesLibraryFolders(photoFiles, folderPath);
+                }
                 _photoFiles = photoFiles;
             }
             catch (Exception ex)
@@ -94,6 +97,34 @@ namespace UWP.Services
         public string GetDeviceFamilyInfo()
         {
             return _deviceFamilyInfo;
+        }
+        public void SetFileIndexToClickedItem(uint clickedPhotoIndex)
+        {
+            _fileIndex = (int)clickedPhotoIndex;
+        }
+        public RandomAccessStreamReference GetCurrentPhoto()
+        {
+            var currentPhotoIndex = _fileIndex - 1;
+            var currentPhotoFile = _photoFiles[currentPhotoIndex];
+            var currentPhotoStreamReference = RandomAccessStreamReference.CreateFromFile(currentPhotoFile);
+
+            return currentPhotoStreamReference;
+        }
+        public StorageFile GetCurrentPhotoFile()
+        {
+            var currentPhotoIndex = _fileIndex - 1;
+            var currentPhotoFile = _photoFiles[currentPhotoIndex];
+
+            return currentPhotoFile;
+        }
+        public async Task<RandomAccessStreamReference> GetThumbnailOfCurrentPhoto()
+        {
+            var currentPhotoIndex = _fileIndex - 1;
+            var currentPhotoFile = _photoFiles[currentPhotoIndex];
+            var thumbnail = await currentPhotoFile.GetThumbnailAsync(ThumbnailMode.PicturesView);
+            var currentPhotoThumbnailStreamReference = RandomAccessStreamReference.CreateFromStream(thumbnail);
+
+            return currentPhotoThumbnailStreamReference;
         }
         #endregion
 
@@ -138,9 +169,8 @@ namespace UWP.Services
         private void CheckIfFilesExist()
         {
             if (_photoFiles == null)
-                GetFiles();
-
-            if (_photoFiles.Count == 0)
+                LoadFiles();
+            else if(_photoFiles.Count == 0)
                 ShowMessageService.Instance.ShowMessage("The picture library is empty!");
         }
         private async Task OpenPhotoFileStreamAndLoadSources(StorageFile file)
@@ -149,8 +179,8 @@ namespace UWP.Services
             {
                 using (var fileStream = await file.OpenAsync(FileAccessMode.Read))
                 {
-                    GetMetaDataInfoFromPhotoAndSetToServiceFields(file, fileStream);
-                    SetPhotoSourceFromFileStream(fileStream);
+                    LoadMetaDataInfoFromPhotoAndSetToServiceFields(file, fileStream);
+                    await SetPhotoSourceFromFileStream(fileStream);
                 }
             }
             catch (Exception ex)
@@ -158,7 +188,7 @@ namespace UWP.Services
                 ShowMessageService.Instance.ShowMessage(ex.Message);
             }
         }
-        private void GetMetaDataInfoFromPhotoAndSetToServiceFields(StorageFile file, IRandomAccessStream fileStream)
+        private void LoadMetaDataInfoFromPhotoAndSetToServiceFields(StorageFile file, IRandomAccessStream fileStream)
         {
             _size = GetSizeInfoFromPhoto(fileStream);
             _date = GetDataCreatedInfoFromPhoto(file);
@@ -182,7 +212,7 @@ namespace UWP.Services
                 clonedStream.Dispose();
             }
         }
-        private async void SetPhotoSourceFromFileStream(IRandomAccessStream fileStream)
+        private async Task SetPhotoSourceFromFileStream(IRandomAccessStream fileStream)
         {
             _photo = new BitmapImage();
             await _photo.SetSourceAsync(fileStream);
@@ -215,7 +245,7 @@ namespace UWP.Services
             reader.GetTagValue(ExifTags.GPSLongitude, out longitude);
             _longitude = (longitude != null) ? (double[])longitude.Clone() : null;
         }
-        private void SetPhotoInfo(Photo photo)
+        private void SetPhotoInfo(DetailPhoto photo)
         {
             photo.Source = _photo;
             photo.Size = _size;
@@ -257,6 +287,9 @@ namespace UWP.Services
                     ShowMessageService.Instance.ShowMessage("Oops! Is this potato?");
                     break;
             }
+            List<StorageFile> newStorageFiles = new List<StorageFile>(_photoFiles);
+            newStorageFiles.Add(capturedPhoto);
+            _photoFiles = newStorageFiles;
         }
         private async Task SavePhotoForWindowsDesktop(StorageFile capturedPhoto)
         {
@@ -315,49 +348,67 @@ namespace UWP.Services
 
             return result.ToString();
         }
-        private async void GetPhotoFilesFromPicturesLibraryFolders(List<StorageFile> photoFiles, StorageFolder storageFolder)
+        private async void LoadPhotoFilesFromPicturesLibraryFolders(List<StorageFile> photoFiles, StorageFolder storageFolder)
         {
             var folders = await storageFolder.GetFoldersAsync();
             var files = await storageFolder.GetFilesAsync();
-
             if (folders.Count > 0)
             {
                 foreach (var folder in folders)
                 {
-                    GetPhotoFilesFromPicturesLibraryFolders(photoFiles, folder);
+                    if (photoFiles != null)
+                    {
+                        await Task.Run(() =>
+                        {
+                            LoadPhotoFilesFromPicturesLibraryFolders(photoFiles, folder);
+                        });
+                    }
                 }
             }
             if (files.Count > 0)
             {
                 foreach (var file in files)
                 {
-                    if (ExtensionCheckService.Instance.HasGraphicExtension(file))
+                    if (ExtensionCheckService.Instance.HasGraphicExtension(file) && photoFiles != null)
                         photoFiles.Add(file);
                 }
             }
         }
-        private async Task<List<Photo>> LoadGallery()
+        private async Task<List<GalleryPhoto>> LoadGallery()
         {
             CheckIfFilesExist();
 
-            List<Photo> photoGallery = null;
-            if(_photoFiles != null)
+            List<GalleryPhoto> photoGallery = null;
+            if (_photoFiles != null)
             {
-                photoGallery = new List<Photo>();
-                foreach (var photoFile in _photoFiles)
+                photoGallery = new List<GalleryPhoto>();
+                for(int i = 0; i < _photoFiles.Count; i++)
                 {
-                    var photo = new Photo();
-                    photo.Name = photoFile.Name;
-                    using (var fileStream = await photoFile.GetThumbnailAsync(ThumbnailMode.PicturesView))
-                    {
-                        photo.Thumbnail = new BitmapImage();
-                        await photo.Thumbnail.SetSourceAsync(fileStream);
-                    }
-                    photoGallery.Add(photo);
+                    StorageFile photoFile = _photoFiles[i];
+                    await OpenPhotoThumbnailFileStreamAndLoadToPhotoGallery(photoGallery, photoFile, i);
                 }
             }
 
             return photoGallery;
+        }
+        private async Task OpenPhotoThumbnailFileStreamAndLoadToPhotoGallery(List<GalleryPhoto> photoGallery, StorageFile photoFile, int index)
+        {
+            try
+            {
+                var photo = new GalleryPhoto();
+                photo.Index = (uint)index;
+                photo.Name = photoFile.Name;
+                using (var fileStream = await photoFile.GetThumbnailAsync(ThumbnailMode.PicturesView))
+                {
+                    photo.Thumbnail = new BitmapImage();
+                    await photo.Thumbnail.SetSourceAsync(fileStream);
+                }
+                photoGallery.Add(photo);
+            }
+            catch (Exception ex)
+            {
+                ShowMessageService.Instance.ShowMessage(ex.ToString());
+            }
         }
         #endregion
     }
