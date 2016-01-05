@@ -11,18 +11,20 @@
     <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
 
         <GridView
+            SelectionMode="Single"
             HorizontalAlignment="Center"
             HorizontalContentAlignment="Center"
             VerticalAlignment="Top"
             VerticalContentAlignment="Center"
+            IsItemClickEnabled="True"
             ItemsSource="{x:Bind PhotoCollection, Mode=OneWay}"
             ItemClick="OnGridViewItemClick">
             <GridView.ItemTemplate>
-                <DataTemplate x:DataType="localModels:Photo">
+                <DataTemplate x:DataType="localModels:GalleryPhoto">
                     <Grid
                         Margin="5,5,0,0"
-                        Width="160"
-                        Height="100">
+                        Width="150"
+                        Height="150">
                         <Image
                             HorizontalAlignment="Center"
                             VerticalAlignment="Center"
@@ -47,4 +49,18 @@
         </GridView>
 
     </Grid>
+
+    <Page.BottomAppBar>
+        <CommandBar>
+            <AppBarButton
+                Click="OnRefreshAppBarButtonClick"
+                Icon="Refresh"
+                Label="Refresh Camera Availability" />
+            <AppBarButton
+                IsEnabled="{x:Bind IsCameraDeviceAvailable, Mode=OneWay}"
+                Click="OnCapturePhotoAppBarButtonClick"
+                Icon="Camera"
+                Label="Capture Photo" />
+        </CommandBar>
+    </Page.BottomAppBar>
 </Page>
