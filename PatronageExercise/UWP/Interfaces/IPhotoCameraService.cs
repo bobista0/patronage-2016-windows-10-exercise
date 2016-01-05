@@ -5,9 +5,9 @@ namespace UWP.Interfaces
 {
     public interface IPhotoCameraService
     {
-        void CaptureAndSavePhoto();
-        void GetFiles();
+        Task CaptureAndSavePhoto();
+        void LoadFiles();
         Task<bool> IsCameraAvailable();
-        Task<Photo> LoadAndGetPhoto();
+        Task<DetailPhoto> LoadAndGetPhoto();
     }
 }
