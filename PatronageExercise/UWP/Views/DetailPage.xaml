@@ -59,18 +59,13 @@
     <Page.BottomAppBar>
         <CommandBar>
             <AppBarButton
-                Click="OnRefreshAppBarButtonClick"
-                Icon="Refresh"
-                Label="Refresh" />
-            <AppBarButton
                 Click="OnGalleryAppBarButtonClick"
                 Icon="Pictures"
                 Label="Gallery" />
             <AppBarButton
-                IsEnabled="{x:Bind IsCameraDeviceAvailable, Mode=OneWay}"
-                Click="OnCapturePhotoAppBarButtonClick"
-                Icon="Camera"
-                Label="Capture Photo" />
+                Click="OnShareAppBarButtonClick"
+                Icon="Globe"
+                Label="Share" />
         </CommandBar>
     </Page.BottomAppBar>
 </Page>
