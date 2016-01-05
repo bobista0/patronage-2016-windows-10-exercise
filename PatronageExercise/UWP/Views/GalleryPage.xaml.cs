@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
+using System.Threading.Tasks;
 using UWP.Models;
 using UWP.Services;
 using Windows.Foundation;
@@ -25,17 +26,28 @@ namespace UWP.Views
     /// </summary>
     public sealed partial class GalleryPage : Page, INotifyPropertyChanged
     {
+        #region FIELDS
         public event PropertyChangedEventHandler PropertyChanged;
+        #endregion
 
+        #region CONSTRUCTORS
         public GalleryPage()
         {
-            this.InitializeComponent();
+            InitializeComponent();
 
-            DisplayGallery();
+            CheckCameraAvailability();
+            Loaded += GalleryPage_Loaded;
         }
 
-        private List<Photo> photoCollection;
-        public List<Photo> PhotoCollection
+        private async void GalleryPage_Loaded(object sender, RoutedEventArgs e)
+        {
+            await DisplayGallery();
+        }
+        #endregion
+
+        #region PROPERTIES
+        private List<GalleryPhoto> photoCollection;
+        public List<GalleryPhoto> PhotoCollection
         {
             get { return photoCollection; }
             set
@@ -48,12 +60,44 @@ namespace UWP.Views
             }
         }
 
-        private async void DisplayGallery()
+        private bool _isCameraDeviceAvailable = false;
+        public bool IsCameraDeviceAvailable
+        {
+            get { return _isCameraDeviceAvailable; }
+            set
+            {
+                if (value != _isCameraDeviceAvailable)
+                {
+                    _isCameraDeviceAvailable = value;
+                    OnPropertyChanged("IsCameraDeviceAvailable");
+                }
+            }
+        }
+        #endregion
+
+        #region METHODS
+        private async Task DisplayGallery()
         {
             var gallery = await PhotoCameraService.Instance.LoadAndGetGallery();
 
             if (gallery != null)
                 PhotoCollection = gallery;
+        }
+
+        private async void CheckCameraAvailability()
+        {
+            IsCameraDeviceAvailable = await PhotoCameraService.Instance.IsCameraAvailable();
+        }
+
+        private async void OnCapturePhotoAppBarButtonClick(object sender, RoutedEventArgs e)
+        {
+            await PhotoCameraService.Instance.CaptureAndSavePhoto();
+        }
+
+        private async void OnRefreshAppBarButtonClick(object sender, RoutedEventArgs e)
+        {
+            CheckCameraAvailability();
+            await DisplayGallery();
         }
 
         private void OnPropertyChanged(string name)
@@ -67,7 +111,10 @@ namespace UWP.Views
 
         private void OnGridViewItemClick(object sender, ItemClickEventArgs e)
         {
-
+            var clickedPhotoIndex = (e.ClickedItem as GalleryPhoto).Index;
+            PhotoCameraService.Instance.SetFileIndexToClickedItem(clickedPhotoIndex);
+            Frame.Navigate(typeof(DetailPage));
         }
+        #endregion
     }
 }
