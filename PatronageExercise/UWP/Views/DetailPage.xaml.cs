@@ -146,23 +146,17 @@ namespace UWP.Views
 
         private async void DataTransferManager_DataRequested(DataTransferManager sender, DataRequestedEventArgs args)
         {
+            List<IStorageItem> storageList = new List<IStorageItem>();
+            storageList.Add(PhotoCameraService.Instance.GetCurrentPhotoFile());
             var deferral = args.Request.GetDeferral();
-            args.Request.Data.SetText("Hello World!");
             args.Request.Data.Properties.Title = "Share Example";
-            args.Request.Data.Properties.Description = "trololol olol ol o lolo";
-
             try
             {
                 var thumbnail = await PhotoCameraService.Instance.GetThumbnailOfCurrentPhoto();
                 args.Request.Data.Properties.Thumbnail = thumbnail;
-                var photoFile = PhotoCameraService.Instance.GetCurrentPhotoFile();
-                List<StorageFile> files = new List<StorageFile>();
-                files.Add(photoFile);
-                args.Request.Data.SetStorageItems(files);
                 var bitmap = PhotoCameraService.Instance.GetCurrentPhoto();
                 args.Request.Data.SetBitmap(bitmap);
-                args.Request.Data.SetData("id1", photoFile);
-
+                args.Request.Data.SetStorageItems(storageList);
             }
             finally
             {
