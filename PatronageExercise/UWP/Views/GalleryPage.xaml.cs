@@ -78,6 +78,7 @@ namespace UWP.Views
         private async void OnCapturePhotoAppBarButtonClick(object sender, RoutedEventArgs e)
         {
             await PhotoCameraService.Instance.CaptureAndSavePhoto();
+            await DisplayGallery();
         }
 
         private async void OnRefreshAppBarButtonClick(object sender, RoutedEventArgs e)
