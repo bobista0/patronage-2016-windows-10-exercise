@@ -30,8 +30,7 @@ namespace UWP.Services
             {
                 foreach (var extension in extensions)
                 {
-                    if (result = Path.GetExtension(item.Name).Equals(extension, StringComparison.CurrentCultureIgnoreCase))
-                        break;
+                    if (result = Path.GetExtension(item.Name).Equals(extension, StringComparison.CurrentCultureIgnoreCase)) { break; }
                 }
             }
 

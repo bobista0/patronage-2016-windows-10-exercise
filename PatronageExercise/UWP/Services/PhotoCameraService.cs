@@ -50,7 +50,9 @@ namespace UWP.Services
         {
             var capturedPhoto = await CapturePhoto();
             if (capturedPhoto != null)
+            {
                 await SavePhoto(capturedPhoto);
+            }
         }
         public async Task<bool> IsCameraAvailable()
         {
@@ -64,7 +66,9 @@ namespace UWP.Services
 
             result = new DetailPhoto();
             if (result != null)
+            {
                 SetPhotoInfo(result);
+            }
 
             return result;
         }
@@ -112,7 +116,9 @@ namespace UWP.Services
                 var currentPhotoFile = _photoFiles[currentPhotoIndex];
 
                 if (currentPhotoFile != null)
+                {
                     currentPhotoStreamReference = RandomAccessStreamReference.CreateFromFile(currentPhotoFile);
+                }
             }
 
             return currentPhotoStreamReference;
@@ -124,7 +130,9 @@ namespace UWP.Services
             var currentPhotoIndex = _fileIndex - 1;
 
             if (_photoFiles != null && _photoFiles.Count > 0)
+            {
                 currentPhotoFile = _photoFiles[currentPhotoIndex];
+            }
 
             return currentPhotoFile;
         }
@@ -144,7 +152,9 @@ namespace UWP.Services
                     thumbnail = await currentPhotoFile.GetThumbnailAsync(ThumbnailMode.PicturesView);
 
                     if (thumbnail != null)
+                    {
                         currentPhotoThumbnailStreamReference = RandomAccessStreamReference.CreateFromStream(thumbnail);
+                    }
                 }
             }
 
@@ -184,7 +194,9 @@ namespace UWP.Services
                     var file = _photoFiles[_fileIndex];
 
                     if (file != null)
+                    {
                         await OpenPhotoFileStreamAndLoadSources(file);
+                    }
 
                     _fileIndex = (_fileIndex + 1) % _photoFiles.Count;
                 }
@@ -193,13 +205,17 @@ namespace UWP.Services
         private void CheckIfFilesExist()
         {
             if (_photoFiles == null)
+            {
                 LoadFiles();
+            }
             else if (_photoFiles.Count == 0)
+            {
                 ShowMessageService.Instance.ShowMessage("The picture library is empty!");
+            }
         }
         private async Task OpenPhotoFileStreamAndLoadSources(StorageFile file)
         {
-            if (file == null) return;
+            if (file == null) { return; }
 
             try
             {
@@ -219,7 +235,7 @@ namespace UWP.Services
         }
         private void LoadMetaDataInfoFromPhotoAndSetToServiceFields(StorageFile file, IRandomAccessStream fileStream)
         {
-            if (file == null || fileStream == null) return;
+            if (file == null || fileStream == null) { return; }
 
             _size = GetSizeInfoFromPhoto(fileStream);
             _date = GetDataCreatedInfoFromPhoto(file);
@@ -236,7 +252,9 @@ namespace UWP.Services
                         try
                         {
                             if (reader != null)
+                            {
                                 SetGpsLatitudeAndLongitudeInfoFromPhoto(reader);
+                            }
                         }
                         catch (Exception ex)
                         {
@@ -249,11 +267,13 @@ namespace UWP.Services
         }
         private async Task SetPhotoSourceFromFileStream(IRandomAccessStream fileStream)
         {
-            if (fileStream == null) return;
+            if (fileStream == null) { return; }
 
             _photo = new BitmapImage();
             if (_photo != null)
+            {
                 await _photo.SetSourceAsync(fileStream);
+            }
         }
         private ulong GetSizeInfoFromPhoto(IRandomAccessStream fileStream)
         {
@@ -261,7 +281,9 @@ namespace UWP.Services
             _size = result = ulong.MinValue;
 
             if (fileStream != null)
+            {
                 result = fileStream.Size;
+            }
 
             return result;
         }
@@ -271,13 +293,15 @@ namespace UWP.Services
             _date = result = DateTime.MinValue;
 
             if (file != null)
+            {
                 result = file.DateCreated.DateTime;
+            }
 
             return result;
         }
         private void SetGpsLatitudeAndLongitudeInfoFromPhoto(ExifReader reader)
         {
-            if (reader == null) return;
+            if (reader == null) { return; }
 
             double[] latitude;
             reader.GetTagValue(ExifTags.GPSLatitude, out latitude);
@@ -289,7 +313,7 @@ namespace UWP.Services
         }
         private void SetPhotoInfo(DetailPhoto photo)
         {
-            if (photo == null) return;
+            if (photo == null) { return; }
 
             if (_photo != null)
             {
@@ -316,7 +340,9 @@ namespace UWP.Services
                 }
 
                 if (photo != null)
+                {
                     await photo.RenameAsync(GetDefaultPhotoName());
+                }
             }
             catch (Exception ex)
             {
@@ -327,7 +353,7 @@ namespace UWP.Services
         }
         private async Task SavePhoto(StorageFile capturedPhoto)
         {
-            if (capturedPhoto == null) return;
+            if (capturedPhoto == null) { return; }
 
             var deviceFamily = GetDeviceFamilyInfo();
             switch (deviceFamily)
@@ -352,7 +378,7 @@ namespace UWP.Services
         }
         private async Task SavePhotoForWindowsDesktop(StorageFile capturedPhoto)
         {
-            if (capturedPhoto == null) return;
+            if (capturedPhoto == null) { return; }
 
             var picker = new FileSavePicker();
             if (picker != null)
@@ -368,7 +394,9 @@ namespace UWP.Services
                     try
                     {
                         if (storageFile != null)
+                        {
                             await capturedPhoto.MoveAndReplaceAsync(file);
+                        }
                     }
                     catch (Exception ex)
                     {
@@ -379,7 +407,7 @@ namespace UWP.Services
         }
         private async Task SavePhotoForWindowsMobile(StorageFile capturedPhoto)
         {
-            if (capturedPhoto == null) return;
+            if (capturedPhoto == null) { return; }
 
             var folderPicker = new FolderPicker();
             if (folderPicker != null)
@@ -394,7 +422,9 @@ namespace UWP.Services
                     try
                     {
                         if (storageFolder != null)
+                        {
                             await capturedPhoto.MoveAsync(storageFolder);
+                        }
                     }
                     catch (Exception ex)
                     {
@@ -415,13 +445,15 @@ namespace UWP.Services
             var second = DateTime.Now.Second.ToString();
 
             if (result != null)
+            {
                 result.Append("UWP").Append($"_{year}{month}{day}").Append($"_{hour}_{minute}_{second}").Append(".jpg");
+            }
 
             return result.ToString();
         }
         private async void LoadPhotoFilesFromPicturesLibraryFolders(List<StorageFile> photoFiles, StorageFolder storageFolder)
         {
-            if (photoFiles == null || storageFolder == null) return;
+            if (photoFiles == null || storageFolder == null) { return; }
 
             IReadOnlyList<StorageFolder> folders = null;
             await Task.Run(async () =>
@@ -453,7 +485,9 @@ namespace UWP.Services
                     foreach (var file in files)
                     {
                         if (ExtensionCheckService.Instance.HasGraphicExtension(file))
+                        {
                             photoFiles.Add(file);
+                        }
                     }
                 }
             }
@@ -482,7 +516,7 @@ namespace UWP.Services
         }
         private async Task OpenPhotoThumbnailFileStreamAndLoadToPhotoGallery(List<GalleryPhoto> photoGallery, StorageFile photoFile, int index)
         {
-            if (photoGallery == null || photoFile == null) return;
+            if (photoGallery == null || photoFile == null) { return; }
 
             try
             {
@@ -497,7 +531,9 @@ namespace UWP.Services
                         photo.Thumbnail = new BitmapImage();
 
                         if (fileStream != null && photo.Thumbnail != null)
+                        {
                             await photo.Thumbnail.SetSourceAsync(fileStream);
+                        }
                     }
                 }
 

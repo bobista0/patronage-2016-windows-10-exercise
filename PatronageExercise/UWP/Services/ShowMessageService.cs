@@ -15,13 +15,20 @@ namespace UWP.Services
         #region PUBLIC METHODS
         public async void ShowMessage(string message, UICommandInvokedHandler handler = null)
         {
+            if (message == null || message == string.Empty) { return; }
+
             var messageDialog = new MessageDialog(message);
-            messageDialog.Commands.Add(new UICommand("OK", handler));
-            messageDialog.DefaultCommandIndex = 0;
-            await messageDialog.ShowAsync();
+            if (messageDialog != null)
+            {
+                messageDialog.Commands.Add(new UICommand("OK", handler));
+                messageDialog.DefaultCommandIndex = 0;
+                await messageDialog.ShowAsync();
+            }
         }
         public void ShowMessageWithApplicationExit(string message)
         {
+            if (message == null || message == string.Empty) { return; }
+
             ShowMessage(message, new UICommandInvokedHandler(this.CommandInvokeHandler));
         }
         #endregion

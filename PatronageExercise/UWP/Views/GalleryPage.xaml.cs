@@ -88,7 +88,7 @@ namespace UWP.Views
 
         private void OnPropertyChanged(string name)
         {
-            if (name == null || name == string.Empty) return;
+            if (name == null || name == string.Empty) { return; }
 
             PropertyChangedEventHandler handler = PropertyChanged;
             if (handler != null)
@@ -99,11 +99,15 @@ namespace UWP.Views
 
         private void OnGridViewItemClick(object sender, ItemClickEventArgs e)
         {
-            if (e == null) return;
+            if (e == null) { return; }
 
             var clickedPhotoIndex = (e.ClickedItem as GalleryPhoto).Index;
             PhotoCameraService.Instance.SetFileIndexToClickedItem(clickedPhotoIndex);
-            Frame.Navigate(typeof(DetailPage));
+
+            if (Frame != null)
+            {
+                Frame.Navigate(typeof(DetailPage));
+            }
         }
         #endregion
     }
