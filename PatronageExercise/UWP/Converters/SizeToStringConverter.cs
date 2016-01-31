@@ -7,21 +7,33 @@ namespace UWP.Converters
     {
         public object Convert(object value, Type targetType, object parameter, string language)
         {
-            string converterSize = string.Empty;
-            string unit = string.Empty;
-            double size = (ulong)value;
+            var converterSize = string.Empty;
 
-            size = size / 1024;
-            if (size < 1024)
+            if (value != null)
             {
-                unit = "KB";
+                var unit = string.Empty;
+                var size = value as ulong?;
+
+                if (size != null)
+                {
+                    size = size / 1024;
+                    if (size < 1024)
+                    {
+                        unit = "KB";
+                    }
+                    else if (size >= 1024)
+                    {
+                        size = size / 1024;
+                        unit = "MB";
+                    }
+                    converterSize = string.Format("{0:F2}{1}", size, unit);
+                }
             }
-            else if (size >= 1024)
+            else
             {
-                size = size / 1024;
-                unit = "MB";
+                converterSize = "-";
             }
-            converterSize = string.Format("{0:F2}{1}", size, unit);
+
             return converterSize;
         }
 

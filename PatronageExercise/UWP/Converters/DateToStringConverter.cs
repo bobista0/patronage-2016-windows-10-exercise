@@ -7,7 +7,11 @@ namespace UWP.Converters
     {
         public object Convert(object value, Type targetType, object parameter, string language)
         {
-            string convertedDate = ((DateTime)value).ToString();
+            var convertedDate = string.Empty;
+
+            if(value != null)
+                convertedDate = ((DateTime)value).ToString();
+
             return convertedDate;
         }
 

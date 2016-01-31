@@ -111,6 +111,8 @@ namespace UWP.Views
 
         private void SetPhoto(DetailPhoto photo)
         {
+            if (photo == null) return;
+
             LoadedPhoto = photo.Source;
             Size = photo.Size;
             Date = photo.Date;
@@ -120,6 +122,8 @@ namespace UWP.Views
 
         private void OnPropertyChanged(string name)
         {
+            if (name == null || name == string.Empty) return;
+
             PropertyChangedEventHandler handler = PropertyChanged;
             if (handler != null)
             {
@@ -134,33 +138,50 @@ namespace UWP.Views
 
         private void OnGalleryAppBarButtonClick(object sender, RoutedEventArgs e)
         {
-            Frame.Navigate(typeof(GalleryPage));
+            if (Frame != null)
+                Frame.Navigate(typeof(GalleryPage));
         }
 
         private void OnShareAppBarButtonClick(object sender, RoutedEventArgs e)
         {
             var dataTransferManager = DataTransferManager.GetForCurrentView();
-            dataTransferManager.DataRequested += DataTransferManager_DataRequested;
+
+            if (dataTransferManager != null)
+                dataTransferManager.DataRequested += DataTransferManager_DataRequested;
+
             DataTransferManager.ShowShareUI();
         }
 
         private async void DataTransferManager_DataRequested(DataTransferManager sender, DataRequestedEventArgs args)
         {
+            if (args == null) return;
+
             List<IStorageItem> storageList = new List<IStorageItem>();
-            storageList.Add(PhotoCameraService.Instance.GetCurrentPhotoFile());
-            var deferral = args.Request.GetDeferral();
-            args.Request.Data.Properties.Title = "Share Example";
-            try
+            if (storageList != null)
             {
-                var thumbnail = await PhotoCameraService.Instance.GetThumbnailOfCurrentPhoto();
-                args.Request.Data.Properties.Thumbnail = thumbnail;
-                var bitmap = PhotoCameraService.Instance.GetCurrentPhoto();
-                args.Request.Data.SetBitmap(bitmap);
-                args.Request.Data.SetStorageItems(storageList);
-            }
-            finally
-            {
-                deferral.Complete();
+                storageList.Add(PhotoCameraService.Instance.GetCurrentPhotoFile());
+
+                var deferral = args.Request.GetDeferral();
+                if (deferral != null)
+                {
+                    args.Request.Data.Properties.Title = "Share Example";
+                    try
+                    {
+                        var thumbnail = await PhotoCameraService.Instance.GetThumbnailOfCurrentPhoto();
+                        if (thumbnail != null)
+                            args.Request.Data.Properties.Thumbnail = thumbnail;
+
+                        var bitmap = PhotoCameraService.Instance.GetCurrentPhoto();
+                        if (bitmap != null)
+                            args.Request.Data.SetBitmap(bitmap);
+
+                        args.Request.Data.SetStorageItems(storageList);
+                    }
+                    finally
+                    {
+                        deferral.Complete();
+                    }
+                }
             }
         }
         #endregion

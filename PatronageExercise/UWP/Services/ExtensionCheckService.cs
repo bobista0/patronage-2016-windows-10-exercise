@@ -26,10 +26,13 @@ namespace UWP.Services
         {
             var result = false;
 
-            foreach (var extension in extensions)
+            if (item != null)
             {
-                if (result = Path.GetExtension(item.Name).Equals(extension, StringComparison.CurrentCultureIgnoreCase))
-                    break;
+                foreach (var extension in extensions)
+                {
+                    if (result = Path.GetExtension(item.Name).Equals(extension, StringComparison.CurrentCultureIgnoreCase))
+                        break;
+                }
             }
 
             return result;

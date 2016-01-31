@@ -67,10 +67,7 @@ namespace UWP.Views
         #region METHODS
         private async Task DisplayGallery()
         {
-            var gallery = await PhotoCameraService.Instance.LoadAndGetGallery();
-
-            if (gallery != null)
-                PhotoCollection = gallery;
+            PhotoCollection = await PhotoCameraService.Instance.LoadAndGetGallery();
         }
 
         private async void CheckCameraAvailability()
@@ -91,6 +88,8 @@ namespace UWP.Views
 
         private void OnPropertyChanged(string name)
         {
+            if (name == null || name == string.Empty) return;
+
             PropertyChangedEventHandler handler = PropertyChanged;
             if (handler != null)
             {
@@ -100,6 +99,8 @@ namespace UWP.Views
 
         private void OnGridViewItemClick(object sender, ItemClickEventArgs e)
         {
+            if (e == null) return;
+
             var clickedPhotoIndex = (e.ClickedItem as GalleryPhoto).Index;
             PhotoCameraService.Instance.SetFileIndexToClickedItem(clickedPhotoIndex);
             Frame.Navigate(typeof(DetailPage));

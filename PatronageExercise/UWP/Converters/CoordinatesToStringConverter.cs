@@ -7,11 +7,11 @@ namespace UWP.Converters
     {
         public object Convert(object value, Type targetType, object parameter, string language)
         {
-            string convertedCoordinate = string.Empty;
+            var convertedCoordinate = string.Empty;
 
             if(value != null)
             {
-                var coordinate = (double[])value;
+                var coordinate = value as double[];
                 convertedCoordinate = coordinate[0].ToString() + "," + coordinate[1].ToString() + coordinate[2].ToString();
             }
             else
