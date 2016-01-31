@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Threading.Tasks;
 using UWP.Models;
@@ -27,16 +28,11 @@ namespace UWP.Views
             CheckCameraAvailability();
             Loaded += GalleryPage_Loaded;
         }
-
-        private async void GalleryPage_Loaded(object sender, RoutedEventArgs e)
-        {
-            await DisplayGallery();
-        }
         #endregion
 
         #region PROPERTIES
-        private List<GalleryPhoto> photoCollection;
-        public List<GalleryPhoto> PhotoCollection
+        private ObservableCollection<GalleryPhoto> photoCollection;
+        public ObservableCollection<GalleryPhoto> PhotoCollection
         {
             get { return photoCollection; }
             set
@@ -77,8 +73,11 @@ namespace UWP.Views
 
         private async void OnCapturePhotoAppBarButtonClick(object sender, RoutedEventArgs e)
         {
-            await PhotoCameraService.Instance.CaptureAndSavePhoto();
-            await DisplayGallery();
+            var newPhoto = await PhotoCameraService.Instance.CaptureAndSavePhoto();
+            if (newPhoto != null)
+            {
+                PhotoCollection.Add(newPhoto);
+            }
         }
 
         private async void OnRefreshAppBarButtonClick(object sender, RoutedEventArgs e)
@@ -109,6 +108,11 @@ namespace UWP.Views
             {
                 Frame.Navigate(typeof(DetailPage));
             }
+        }
+
+        private async void GalleryPage_Loaded(object sender, RoutedEventArgs e)
+        {
+            await DisplayGallery();
         }
         #endregion
     }
