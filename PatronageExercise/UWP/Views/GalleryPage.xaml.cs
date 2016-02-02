@@ -76,6 +76,9 @@ namespace UWP.Views
             var newPhoto = await PhotoCameraService.Instance.CaptureAndSavePhoto();
             if (newPhoto != null)
             {
+                if (PhotoCollection == null)
+                    PhotoCollection = new ObservableCollection<GalleryPhoto>();
+
                 PhotoCollection.Add(newPhoto);
             }
         }
